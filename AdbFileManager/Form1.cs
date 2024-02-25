@@ -136,8 +136,9 @@ namespace AdbFileManager {
 							//copy file to temp folder
 							string sourcePath = directoryPath + name;
 							string destinationPath = tempPath + name;
-
-							if(!temp_folder_created) {
+							Console.Write("sourcePath: " + sourcePath);
+                            Console.Write("destinationPath:" + destinationPath);
+                            if (!temp_folder_created) {
 								Directory.CreateDirectory(tempPath);
 								temp_folder_created = true;
 							}
@@ -238,7 +239,7 @@ namespace AdbFileManager {
 			copying = true;
 
 			foreach(File file in files) {
-				string sourcefile = directoryPath + file.name;
+				string sourcefile = directoryPath + "/" + file.name;
 				string destinationFile = $"\"{destinationFolder.Replace('\\', '/')}/{file.name}\"";
 				Console.WriteLine(destinationFile);
 				string command = $"adb pull {date} \"{sourcefile}\" {destinationFile}";
