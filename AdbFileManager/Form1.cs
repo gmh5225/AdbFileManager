@@ -110,7 +110,7 @@ namespace AdbFileManager {
 
 		private void explorerBrowser1_Load(object sender, EventArgs e) {
 			try {
-				string path = Environment.ExpandEnvironmentVariables("%UserProfile%\\pictures\\");
+				string path = Environment.ExpandEnvironmentVariables("C:\\");
 				ShellObject Shell = ShellObject.FromParsingName(path);
 				explorerBrowser1.Navigate(Shell);
 				explorer_path.Text = path;
@@ -359,7 +359,10 @@ namespace AdbFileManager {
 			}
 			progressbar.Close();
 			copying = false;
-		}
+
+            // refresh
+            dataGridView1.DataSource = Functions.getDir(directoryPath, checkBox_android6fix.Checked, checkBox_android6fix_fastmode.Checked);
+        }
 
 		bool cur_path_modifyInternal = false;
 		private void cur_path_TextChanged(object sender, EventArgs e) {
