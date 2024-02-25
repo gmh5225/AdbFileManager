@@ -27,7 +27,7 @@ using Microsoft.WindowsAPICodePack.Controls;
 namespace AdbFileManager {
 	public partial class Form1 : Form {
 		public static Form1 _Form1;
-		public string directoryPath = "/sdcard/";
+		public string directoryPath = "/";
 		public string tempPath = Path.GetTempPath() + "adbfilemanager\\";
 		public bool temp_folder_created = false;
 
@@ -585,7 +585,7 @@ namespace AdbFileManager {
 
 			// Retrieve a list of files in the specified directory
 
-			string command = $"adb shell ls -lL \"{directoryPath}\"";
+			string command = $"adb shell su -c ls -lL \"{directoryPath}\"";
 			Console.WriteLine(command);
 			string output = Form1.adb(command);
 			string[] lines = output.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
