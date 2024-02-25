@@ -27,7 +27,7 @@ using Microsoft.WindowsAPICodePack.Controls;
 namespace AdbFileManager {
 	public partial class Form1 : Form {
 		public static Form1 _Form1;
-		public string directoryPath = "/";
+		public string directoryPath = "/data/local/tests";
 		public string tempPath = Path.GetTempPath() + "adbfilemanager\\";
 		public bool temp_folder_created = false;
 
@@ -110,7 +110,7 @@ namespace AdbFileManager {
 
 		private void explorerBrowser1_Load(object sender, EventArgs e) {
 			try {
-				string path = Environment.ExpandEnvironmentVariables("C:\\");
+				string path = Environment.ExpandEnvironmentVariables("E:\\android");
 				ShellObject Shell = ShellObject.FromParsingName(path);
 				explorerBrowser1.Navigate(Shell);
 				explorer_path.Text = path;
