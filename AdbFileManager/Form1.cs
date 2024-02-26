@@ -34,18 +34,23 @@ namespace AdbFileManager {
 		public bool temp_folder_created = false;
 		ContextMenuStrip contextMenuStrip;
 
+		string last_path = "E:\\android";
+        string save_name = "last_path.txt";
+
         object currentCellValue;
 
         public static ResourceManager rm = new ResourceManager("AdbFileManager.strings", Assembly.GetExecutingAssembly());
 		public Form1() {
 			_Form1 = this;
-			load_lang();
+
+            read_path();
+
+            load_lang();
 
 			InitializeComponent();
 
 			load_lang_combobox();
 			load_settings();
-
 
 			// create menu item
 			contextMenuStrip = new ContextMenuStrip();
@@ -68,8 +73,9 @@ namespace AdbFileManager {
 
             this.dataGridView1.MouseClick += new MouseEventHandler(dataGridView1_MouseClick);
 
+            //this.FormClosing += Form1_FormClosing;
 
-			checkBox_android6fix.Enabled = true;
+            checkBox_android6fix.Enabled = true;
 
 			this.Controls.Add(panel2);
 			panel1.Controls.Remove(panel2);
@@ -105,6 +111,49 @@ namespace AdbFileManager {
 			version.Text = versionn;
 			Console.WriteLine(versionn);
 		}
+
+        public void read_path()
+		{
+            try
+            {
+                using (StreamReader reader = new StreamReader(save_name))
+                {
+                    string fileContent = reader.ReadLine();
+
+                    Console.WriteLine("File content read successfully:");
+                    Console.WriteLine(fileContent);
+
+					last_path = fileContent;
+                    //Console.WriteLine("111");
+                    //Console.Write(last_path);
+                    //Console.WriteLine("222");
+                    //Console.WriteLine("333");
+                    //Console.Write("00");
+                    //Console.WriteLine("444");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred: " + ex.Message);
+            }
+        }
+
+        public void save_path()
+        {
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(save_name, false))
+                {
+                    writer.WriteLine(explorer_path.Text);
+                }
+
+                Console.WriteLine("Path written successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred: " + ex.Message);
+            }
+        }
 
         private void MenuItem1_run_Click(object sender, EventArgs e)
         {
@@ -179,7 +228,6 @@ namespace AdbFileManager {
             Console.WriteLine(adb(command));
         }
 
-
         public static string adb(string command) {
 			Process process = new Process();
 			process.StartInfo.CreateNoWindow = true;
@@ -210,14 +258,18 @@ namespace AdbFileManager {
 		}
 
 		private void explorerBrowser1_Load(object sender, EventArgs e) {
+			read_path();
 			try {
-				string path = Environment.ExpandEnvironmentVariables("E:\\android");
-				ShellObject Shell = ShellObject.FromParsingName(path);
+                string path = Environment.ExpandEnvironmentVariables(last_path);
+                //string path = last_path;
+				Console.WriteLine("xxx path: " + path);
+                ShellObject Shell = ShellObject.FromParsingName(path);
 				explorerBrowser1.Navigate(Shell);
 				explorer_path.Text = path;
 			}
 			catch {
-				string path = Environment.ExpandEnvironmentVariables("C:\\");
+                Console.WriteLine("xxx path exception");
+                string path = Environment.ExpandEnvironmentVariables("C:\\");
 				ShellObject Shell = ShellObject.FromParsingName(path);
 				explorerBrowser1.Navigate(Shell);
 				explorer_path.Text = path;
@@ -576,7 +628,8 @@ namespace AdbFileManager {
 			}
 
 			save_settings();
-		}
+            save_path();
+        }
 
 		enum Languages {
 			English,
