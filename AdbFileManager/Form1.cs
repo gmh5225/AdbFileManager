@@ -50,12 +50,21 @@ namespace AdbFileManager {
 			// create menu item
 			contextMenuStrip = new ContextMenuStrip();
             ToolStripMenuItem menuItem1 = new ToolStripMenuItem("run");
+            ToolStripMenuItem menuItem11 = new ToolStripMenuItem("kill");
             ToolStripMenuItem menuItem2 = new ToolStripMenuItem("del");
+            ToolStripMenuItem menuItem3 = new ToolStripMenuItem("load drv");
+            ToolStripMenuItem menuItem4 = new ToolStripMenuItem("unload drv");
             contextMenuStrip.Items.Add(menuItem1);
+            contextMenuStrip.Items.Add(menuItem11);
             contextMenuStrip.Items.Add(menuItem2);
+            contextMenuStrip.Items.Add(menuItem3);
+            contextMenuStrip.Items.Add(menuItem4);
 
             menuItem1.Click += MenuItem1_run_Click;
+            menuItem11.Click += MenuItem11_kill_Click;
             menuItem2.Click += MenuItem2_del_Click;
+            menuItem3.Click += MenuItem3_load_drv_Click;
+            menuItem4.Click += MenuItem4_unload_drv_Click;
 
             this.dataGridView1.MouseClick += new MouseEventHandler(dataGridView1_MouseClick);
 
@@ -97,10 +106,39 @@ namespace AdbFileManager {
 			Console.WriteLine(versionn);
 		}
 
-  
         private void MenuItem1_run_Click(object sender, EventArgs e)
         {
+            string proc_name = "" + currentCellValue;
+            Console.WriteLine("MenuItem1_run_Click: " + proc_name);
+
+            string command = $"adb shell su -c {directoryPath}/./{proc_name}";
+            Console.WriteLine("command: " + command);
+
+            Task.Run(() => adb(command));
+       
+			//adb(command);
+		}
+
+        private void MenuItem11_kill_Click(object sender, EventArgs e)
+        {
+            string proc_name = "" + currentCellValue;
+            Console.WriteLine("MenuItem11_kill_Click: " + proc_name);
+
+            string command = $"adb shell su -c pgrep {proc_name}";
+            Console.WriteLine("command: " + command);
+            string kill_pid = adb(command);
+
+			if(!kill_pid.Equals(""))
+			{
+                Console.WriteLine("pid: " + kill_pid);
+
+                string command2 = $"adb shell su -c kill -9 {kill_pid}";
+                Console.WriteLine("command2: " + command2);
+
+                Console.WriteLine(adb(command2));
             
+            }
+           
         }
 
         private void MenuItem2_del_Click(object sender, EventArgs e)
@@ -112,11 +150,35 @@ namespace AdbFileManager {
             string command = $"adb shell su -c rm -rf {path}";
             Console.WriteLine("command: " + command);
 
-			adb(command);
+            Console.WriteLine(adb(command));
+       
 
             // refresh
             dataGridView1.DataSource = Functions.getDir(directoryPath, checkBox_android6fix.Checked, checkBox_android6fix_fastmode.Checked);
         }
+
+        private void MenuItem3_load_drv_Click(object sender, EventArgs e)
+        {
+            string path = directoryPath + "/" + currentCellValue;
+            Console.WriteLine("MenuItem3_load_drv_Click: " + path);
+
+            string command = $"adb shell su -c insmod {path}";
+            Console.WriteLine("command: " + command);
+
+            Console.WriteLine(adb(command));
+        }
+
+        private void MenuItem4_unload_drv_Click(object sender, EventArgs e)
+        {
+            string path = directoryPath + "/" + currentCellValue;
+            Console.WriteLine("MenuItem3_load_drv_Click: " + path);
+
+            string command = $"adb shell su -c rmmod {path}";
+            Console.WriteLine("command: " + command);
+
+            Console.WriteLine(adb(command));
+        }
+
 
         public static string adb(string command) {
 			Process process = new Process();
