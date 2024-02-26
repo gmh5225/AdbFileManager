@@ -23,6 +23,8 @@ using TaskDialog = System.Windows.Forms.TaskDialog;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Timer = System.Windows.Forms.Timer;
 using Microsoft.WindowsAPICodePack.Controls;
+using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AdbFileManager {
 	public partial class Form1 : Form {
@@ -30,8 +32,11 @@ namespace AdbFileManager {
 		public string directoryPath = "/data/local/tests";
 		public string tempPath = Path.GetTempPath() + "adbfilemanager\\";
 		public bool temp_folder_created = false;
+		ContextMenuStrip contextMenuStrip;
 
-		public static ResourceManager rm = new ResourceManager("AdbFileManager.strings", Assembly.GetExecutingAssembly());
+        object currentCellValue;
+
+        public static ResourceManager rm = new ResourceManager("AdbFileManager.strings", Assembly.GetExecutingAssembly());
 		public Form1() {
 			_Form1 = this;
 			load_lang();
@@ -40,6 +45,19 @@ namespace AdbFileManager {
 
 			load_lang_combobox();
 			load_settings();
+
+
+			// create menu item
+			contextMenuStrip = new ContextMenuStrip();
+            ToolStripMenuItem menuItem1 = new ToolStripMenuItem("run");
+            ToolStripMenuItem menuItem2 = new ToolStripMenuItem("del");
+            contextMenuStrip.Items.Add(menuItem1);
+            contextMenuStrip.Items.Add(menuItem2);
+
+            menuItem1.Click += MenuItem1_run_Click;
+            menuItem2.Click += MenuItem2_del_Click;
+
+            this.dataGridView1.MouseClick += new MouseEventHandler(dataGridView1_MouseClick);
 
 
 			checkBox_android6fix.Enabled = true;
@@ -79,7 +97,28 @@ namespace AdbFileManager {
 			Console.WriteLine(versionn);
 		}
 
-		public static string adb(string command) {
+  
+        private void MenuItem1_run_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void MenuItem2_del_Click(object sender, EventArgs e)
+        {
+			// delete file
+            string path = directoryPath + "/" + currentCellValue;
+            Console.WriteLine("MenuItem2_del_Click: " + path);
+
+            string command = $"adb shell su -c rm -rf {path}";
+            Console.WriteLine("command: " + command);
+
+			adb(command);
+
+            // refresh
+            dataGridView1.DataSource = Functions.getDir(directoryPath, checkBox_android6fix.Checked, checkBox_android6fix_fastmode.Checked);
+        }
+
+        public static string adb(string command) {
 			Process process = new Process();
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.FileName = "cmd.exe";
@@ -123,7 +162,38 @@ namespace AdbFileManager {
 			}
 		}
 
-		private void dataGridView1_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e) {
+        private void dataGridView1_MouseClick(object sender, MouseEventArgs e)
+		{
+            
+            if (e.Button == MouseButtons.Right)
+            {
+                
+                Point p = new Point(e.X, e.Y);
+
+               
+                DataGridView.HitTestInfo hitTestInfo = dataGridView1.HitTest(e.X, e.Y);
+                if (hitTestInfo.Type == DataGridViewHitTestType.Cell)
+                {
+                   
+                    int rowIndex = hitTestInfo.RowIndex;
+
+                    if (rowIndex >= 0)
+                    {
+                      
+                        dataGridView1.Rows[rowIndex].Selected = true;
+                   
+                        var cellValue = dataGridView1.Rows[rowIndex].Cells[1].Value;
+
+                        currentCellValue = cellValue;
+
+                        contextMenuStrip.Show(dataGridView1, p);
+                    }
+                }
+            }
+        }
+
+
+        private void dataGridView1_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e) {
 			Console.WriteLine("CellMouseDoubleClick()");
 			if(e.RowIndex >= 0) {
 				string name = dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString();
