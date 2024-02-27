@@ -160,10 +160,14 @@ namespace AdbFileManager {
             string proc_name = "" + currentCellValue;
             Console.WriteLine("MenuItem1_run_Click: " + proc_name);
 
-            string command = $"adb shell su -c {directoryPath}/./{proc_name}";
-            Console.WriteLine("command: " + command);
+            string command1 = $"adb shell su -c chmod +x {directoryPath}/{proc_name}";
+            Console.WriteLine("command1: " + command1);
+            Console.WriteLine(adb(command1));
 
-            Task.Run(() => adb(command));
+            string command2 = $"adb shell su -c {directoryPath}/./{proc_name}";
+            Console.WriteLine("command2: " + command2);
+
+            Task.Run(() => adb(command2));
        
 			//adb(command);
 		}
