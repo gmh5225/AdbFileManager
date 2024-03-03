@@ -430,7 +430,14 @@ namespace AdbFileManager {
 				string sourcefile = directoryPath + "/" + file.name;
 				string destinationFile = $"\"{destinationFolder.Replace('\\', '/')}/{file.name}\"";
 				Console.WriteLine(destinationFile);
-				string command = $"adb pull {date} \"{sourcefile}\" {destinationFile}";
+
+				// create tmp file
+				{
+                    string command1 = $"adb shell su -c \"cat {sourcefile} > /sdcard/{file.name}\"";
+                    Console.WriteLine(adb(command1));
+                }
+
+				string command = $"adb pull {date} \"/sdcard/{file.name}\" {destinationFile}";
 				string final_directory = Path.GetDirectoryName(destinationFile).Replace("\"", "");
 				if(!Directory.Exists(final_directory)) {
 					Console.WriteLine("Creating directory: " + final_directory);
@@ -439,6 +446,13 @@ namespace AdbFileManager {
 				Console.WriteLine(command);
 				progressbar.update(copied, filecount, directoryPath, destinationFolder, file.name);
 				Console.WriteLine(adb(command));
+
+				// delete tmp file
+				{
+                    string command1 = $"adb shell su -c \"rm -rf /sdcard/{file.name}\"";
+                    Console.WriteLine(adb(command1));
+                }
+
 				copied++;
 			}
 
